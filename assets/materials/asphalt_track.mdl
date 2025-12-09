@@ -1,0 +1,93 @@
+mdl 1.7;
+
+// Asphalt Track Surface Material
+// Photorealistic racing track surface with wear patterns
+
+import ::df::*;
+import ::base::*;
+import ::math::*;
+import ::state::*;
+import ::tex::*;
+import ::anno::*;
+
+export material asphalt_track(
+    // Base color
+    uniform color base_color = color(0.12, 0.12, 0.12)
+        [[
+            anno::display_name("Base Color"),
+            anno::description("Base asphalt color")
+        ]],
+    
+    // Roughness
+    uniform float roughness = 0.85
+        [[
+            anno::display_name("Roughness"),
+            anno::hard_range(0.0, 1.0)
+        ]],
+    
+    // Wear amount
+    uniform float wear_amount = 0.3
+        [[
+            anno::display_name("Wear Amount"),
+            anno::description("Racing line wear intensity"),
+            anno::hard_range(0.0, 1.0)
+        ]],
+    
+    // Aggregate visibility
+    uniform float aggregate_visibility = 0.4
+        [[
+            anno::display_name("Aggregate Visibility"),
+            anno::description("Visibility of stone aggregate"),
+            anno::hard_range(0.0, 1.0)
+        ]],
+    
+    // Texture scale
+    uniform float texture_scale = 2.0
+        [[
+            anno::display_name("Texture Scale"),
+            anno::soft_range(0.1, 10.0)
+        ]]
+)
+= let {
+    // Generate noise-based texture coordinates
+    float3 pos = state::position() * texture_scale;
+    
+    // Multi-octave noise for asphalt texture
+    float noise1 = base::perlin_noise(pos * 10.0).mono;
+    float noise2 = base::perlin_noise(pos * 25.0).mono;
+    float noise3 = base::perlin_noise(pos * 50.0).mono;
+    
+    // Combine noise octaves
+    float combined_noise = noise1 * 0.5 + noise2 * 0.3 + noise3 * 0.2;
+    
+    // Aggregate pattern (larger stones)
+    float aggregate = math::step(0.7 - aggregate_visibility, noise1);
+    
+    // Calculate final color with wear
+    color worn_color = color(0.18, 0.18, 0.18);  // Lighter worn areas
+    color final_color = math::lerp(base_color, worn_color, wear_amount * (1.0 - combined_noise));
+    
+    // Add aggregate variation
+    final_color = math::lerp(final_color, color(0.25, 0.24, 0.22), aggregate * 0.3);
+    
+    // Roughness variation
+    float final_roughness = roughness - wear_amount * 0.2 + combined_noise * 0.1;
+    
+    // Subtle normal perturbation from aggregate
+    float3 normal_offset = float3(
+        base::perlin_noise(pos * 30.0 + float3(0.0)).mono - 0.5,
+        0.0,
+        base::perlin_noise(pos * 30.0 + float3(100.0)).mono - 0.5
+    ) * 0.1 * aggregate_visibility;
+    
+} in material(
+    surface: material_surface(
+        scattering: df::diffuse_reflection_bsdf(
+            tint: final_color,
+            roughness: final_roughness
+        )
+    ),
+    geometry: material_geometry(
+        normal: math::normalize(state::normal() + normal_offset)
+    )
+);

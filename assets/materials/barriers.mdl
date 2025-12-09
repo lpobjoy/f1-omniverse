@@ -1,0 +1,154 @@
+mdl 1.7;
+
+// Barrier and Safety Materials
+// Tire barriers, TecPro barriers, catch fencing
+
+import ::df::*;
+import ::base::*;
+import ::math::*;
+import ::state::*;
+import ::tex::*;
+import ::anno::*;
+
+// Tire barrier material (stacked tires painted)
+export material tire_barrier(
+    uniform color paint_color = color(0.9, 0.1, 0.1)
+        [[
+            anno::display_name("Paint Color"),
+            anno::description("Color of painted tire barriers")
+        ]],
+    uniform float paint_coverage = 0.7
+        [[
+            anno::display_name("Paint Coverage"),
+            anno::hard_range(0.0, 1.0)
+        ]]
+)
+= let {
+    float3 pos = state::position() * 5.0;
+    
+    // Tire stack pattern
+    float noise = base::perlin_noise(pos).mono;
+    
+    // Paint wear pattern
+    float wear_noise = base::perlin_noise(pos * 3.0).mono;
+    float paint_mask = math::smoothstep(1.0 - paint_coverage, 1.0 - paint_coverage + 0.1, wear_noise);
+    
+    // Base rubber color
+    color rubber = color(0.1, 0.1, 0.1);
+    
+    // Mix painted and unpainted areas
+    color final_color = math::lerp(paint_color, rubber, paint_mask);
+    
+} in material(
+    surface: material_surface(
+        scattering: df::diffuse_reflection_bsdf(
+            tint: final_color,
+            roughness: 0.8
+        )
+    )
+);
+
+// TecPro barrier (foam barriers)
+export material tecpro_barrier(
+    uniform color barrier_color = color(0.2, 0.5, 0.9)
+        [[
+            anno::display_name("Barrier Color"),
+            anno::description("TecPro barrier color (usually blue or yellow)")
+        ]]
+)
+= let {
+    float3 pos = state::position() * 10.0;
+    
+    // Foam texture
+    float noise = base::perlin_noise(pos).mono;
+    float fine_noise = base::perlin_noise(pos * 5.0).mono;
+    
+    // Slight color variation
+    color varied_color = barrier_color * (0.9 + noise * 0.2);
+    
+} in material(
+    surface: material_surface(
+        scattering: df::diffuse_reflection_bsdf(
+            tint: varied_color,
+            roughness: 0.9
+        )
+    )
+);
+
+// Metal catch fence (debris fence)
+export material catch_fence(
+    uniform color fence_color = color(0.5, 0.5, 0.5)
+        [[
+            anno::display_name("Fence Color")
+        ]],
+    uniform float metallic = 0.7
+        [[
+            anno::display_name("Metallic"),
+            anno::hard_range(0.0, 1.0)
+        ]]
+)
+= let {
+    // Basic metallic material for chain link
+    float roughness = 0.3;
+    
+} in material(
+    surface: material_surface(
+        scattering: df::microfacet_ggx_smith_bsdf(
+            roughness_u: roughness,
+            roughness_v: roughness,
+            tint: fence_color,
+            mode: df::scatter_reflect
+        )
+    )
+);
+
+// Concrete barrier (armco alternative)
+export material concrete_barrier(
+    uniform color concrete_color = color(0.65, 0.63, 0.6)
+        [[
+            anno::display_name("Concrete Color")
+        ]],
+    uniform float weathering = 0.3
+        [[
+            anno::display_name("Weathering"),
+            anno::hard_range(0.0, 1.0)
+        ]]
+)
+= let {
+    float3 pos = state::position() * 3.0;
+    
+    // Concrete texture
+    float noise1 = base::perlin_noise(pos).mono;
+    float noise2 = base::perlin_noise(pos * 5.0).mono;
+    float noise3 = base::perlin_noise(pos * 15.0).mono;
+    
+    // Aggregate pattern
+    float aggregate = noise2 * 0.5 + noise3 * 0.5;
+    
+    // Color variation
+    color varied_color = concrete_color * (0.85 + noise1 * 0.3);
+    
+    // Weathering (darker streaks)
+    color weathered_color = concrete_color * 0.6;
+    float weather_mask = math::smoothstep(0.5, 0.7, noise1) * weathering;
+    
+    color final_color = math::lerp(varied_color, weathered_color, weather_mask);
+    
+    // Surface normal variation
+    float3 normal_offset = float3(
+        noise2 - 0.5,
+        0.0,
+        noise3 - 0.5
+    ) * 0.08;
+    
+} in material(
+    surface: material_surface(
+        scattering: df::diffuse_reflection_bsdf(
+            tint: final_color,
+            roughness: 0.85
+        )
+    ),
+    geometry: material_geometry(
+        normal: math::normalize(state::normal() + normal_offset)
+    )
+);

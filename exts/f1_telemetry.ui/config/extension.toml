@@ -1,0 +1,33 @@
+[package]
+# Extension metadata
+title = "F1 Telemetry UI"
+description = "User interface for F1 racing telemetry dashboard - displays real-time data and race information"
+version = "1.0.0"
+category = "UI"
+keywords = ["f1", "telemetry", "racing", "dashboard", "ui"]
+authors = ["Lewis Pobjoy"]
+repository = ""
+readme = "docs/README.md"
+changelog = "docs/CHANGELOG.md"
+
+# Extension dependencies
+[dependencies]
+"omni.kit.uiapp" = {}
+"omni.ui" = {}
+"omni.kit.window.extensions" = {}
+"f1_telemetry.core" = {}
+
+# Python module configuration
+[[python.module]]
+name = "f1_telemetry.ui"
+
+# Test configuration
+[[test]]
+args = [
+    "--no-window",
+    "--/app/asyncRendering=false"
+]
+dependencies = [
+    "omni.kit.test"
+]
+timeout = 180

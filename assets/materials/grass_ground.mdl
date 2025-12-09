@@ -1,0 +1,135 @@
+mdl 1.7;
+
+// Grass Surface Material
+// Photorealistic grass for track surroundings
+
+import ::df::*;
+import ::base::*;
+import ::math::*;
+import ::state::*;
+import ::tex::*;
+import ::anno::*;
+
+export material grass_ground(
+    // Base grass color
+    uniform color grass_color = color(0.15, 0.35, 0.08)
+        [[
+            anno::display_name("Grass Color"),
+            anno::description("Base grass color")
+        ]],
+    
+    // Dry patches color
+    uniform color dry_color = color(0.35, 0.32, 0.12)
+        [[
+            anno::display_name("Dry Color"),
+            anno::description("Color of dry grass patches")
+        ]],
+    
+    // Roughness
+    uniform float roughness = 0.9
+        [[
+            anno::display_name("Roughness"),
+            anno::hard_range(0.0, 1.0)
+        ]],
+    
+    // Dry patch amount
+    uniform float dry_amount = 0.2
+        [[
+            anno::display_name("Dry Patches"),
+            anno::description("Amount of dry grass patches"),
+            anno::hard_range(0.0, 1.0)
+        ]],
+    
+    // Texture scale
+    uniform float texture_scale = 0.5
+        [[
+            anno::display_name("Texture Scale"),
+            anno::soft_range(0.1, 10.0)
+        ]]
+)
+= let {
+    // Position-based texturing
+    float3 pos = state::position() * texture_scale;
+    
+    // Multi-scale noise for grass variation
+    float large_noise = base::perlin_noise(pos * 2.0).mono;
+    float medium_noise = base::perlin_noise(pos * 8.0).mono;
+    float fine_noise = base::perlin_noise(pos * 20.0).mono;
+    
+    // Combine for natural variation
+    float variation = large_noise * 0.5 + medium_noise * 0.35 + fine_noise * 0.15;
+    
+    // Dry patch mask
+    float dry_mask = math::smoothstep(0.6, 0.8, large_noise) * dry_amount;
+    
+    // Color variation
+    color varied_grass = grass_color * (0.8 + variation * 0.4);
+    color final_color = math::lerp(varied_grass, dry_color, dry_mask);
+    
+    // Add subtle darkness variation
+    final_color = final_color * (0.85 + fine_noise * 0.3);
+    
+} in material(
+    surface: material_surface(
+        scattering: df::diffuse_reflection_bsdf(
+            tint: final_color,
+            roughness: roughness
+        )
+    )
+);
+
+export material gravel_trap(
+    // Base gravel color
+    uniform color gravel_color = color(0.6, 0.55, 0.45)
+        [[
+            anno::display_name("Gravel Color"),
+            anno::description("Base gravel color")
+        ]],
+    
+    // Roughness
+    uniform float roughness = 0.95
+        [[
+            anno::display_name("Roughness"),
+            anno::hard_range(0.0, 1.0)
+        ]],
+    
+    // Stone size variation
+    uniform float stone_scale = 5.0
+        [[
+            anno::display_name("Stone Scale"),
+            anno::soft_range(1.0, 20.0)
+        ]]
+)
+= let {
+    float3 pos = state::position() * stone_scale;
+    
+    // Voronoi-like pattern for stones
+    float noise1 = base::perlin_noise(pos * 3.0).mono;
+    float noise2 = base::perlin_noise(pos * 6.0).mono;
+    
+    // Color variation per "stone"
+    float stone_variation = math::frac(noise1 * 10.0);
+    color varied_color = gravel_color * (0.7 + stone_variation * 0.6);
+    
+    // Add some darker stones
+    float dark_mask = math::step(0.85, noise2);
+    varied_color = math::lerp(varied_color, gravel_color * 0.4, dark_mask);
+    
+    // Normal perturbation for depth
+    float3 normal_offset = float3(
+        noise1 - 0.5,
+        0.0,
+        noise2 - 0.5
+    ) * 0.15;
+    
+} in material(
+    surface: material_surface(
+        scattering: df::diffuse_reflection_bsdf(
+            tint: varied_color,
+            roughness: roughness
+        )
+    ),
+    geometry: material_geometry(
+        normal: math::normalize(state::normal() + normal_offset)
+    )
+);

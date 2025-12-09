@@ -1,0 +1,116 @@
+[package]
+title = "F1 Telemetry - Pobstone GP"
+description = "Real-time F1 racing simulation with live telemetry at Pobstone GP (Silverstone)"
+version = "1.0.0"
+authors = ["Lewis Pobjoy"]
+keywords = ["f1", "telemetry", "racing", "simulation", "silverstone", "pobstone"]
+
+[dependencies]
+"omni.kit.uiapp" = {}
+"omni.kit.window.viewport" = {}
+"omni.physx" = {}
+"omni.graph" = {}
+"omni.graph.action" = {}
+"omni.graph.nodes" = {}
+"omni.usd" = {}
+"omni.hydra.rtx" = {}
+"omni.kit.window.extensions" = {}
+"omni.kit.window.console" = {}
+"omni.kit.window.property" = {}
+"omni.kit.window.stage" = {}
+"omni.kit.window.content_browser" = {}
+"omni.kit.menu.file" = {}
+"omni.kit.menu.edit" = {}
+"omni.kit.menu.create" = {}
+"omni.kit.quicklayout" = {}
+"omni.kit.stage_templates" = {}
+"omni.kit.primitive.mesh" = {}
+"omni.kit.material.library" = {}
+"omni.kit.manipulator.camera" = {}
+"omni.kit.manipulator.selection" = {}
+"omni.kit.manipulator.transform" = {}
+"omni.rtx.settings.core" = {}
+
+# Cesium for real-world terrain (optional - requires installation)
+# "cesium.omniverse" = {}
+
+# Local extensions
+"f1_telemetry.core" = {}
+"f1_telemetry.ui" = {}
+
+[settings]
+# Renderer settings for RTX
+renderer.active = "rtx"
+rtx.hydra.mdltranslator.distilling.enabled = true
+rtx.pathtracing.optixDenoiser.enabled = true
+rtx.raytracing.globalIlluminationEnv.enabled = true
+rtx.raytracing.shadowsOptimization = true
+
+# Viewport settings
+persistent.app.viewport.defaults.renderResolution = [1920, 1080]
+app.viewport.grid.enabled = true
+
+# Physics settings
+physics.defaultNumThreads = 8
+physics.updateRate = 60.0
+physics.updateToFrameRate = true
+
+# UI settings
+app.window.title = "F1 Telemetry - Pobstone GP"
+app.window.width = 1920
+app.window.height = 1080
+app.window.fullscreen = false
+
+# Extension search paths
+app.exts.folders = [
+    "${app}/../exts",
+    "${kit}/exts"
+]
+
+# F1 Simulation settings
+f1.simulation.totalLaps = 50
+f1.simulation.defaultSpeed = 0.25
+f1.simulation.pitStopDuration = 3.5
+f1.simulation.trackScale = 2.0
+f1.simulation.elevationOffset = 15.0
+
+# DRS Zones
+f1.drs.zone1.start = 0.40
+f1.drs.zone1.end = 0.48
+f1.drs.zone2.start = 0.62
+f1.drs.zone2.end = 0.72
+
+# Pit Lane
+f1.pit.entryT = 0.92
+f1.pit.exitT = 0.06
+
+# Driver/Team Configuration
+f1.teams.0.name = "Ferrari"
+f1.teams.0.driver = "Karina"
+f1.teams.0.number = 16
+f1.teams.0.color = [220, 0, 0]
+
+f1.teams.1.name = "Red Bull"
+f1.teams.1.driver = "Lewis"
+f1.teams.1.number = 1
+f1.teams.1.color = [30, 65, 255]
+
+f1.teams.2.name = "Mercedes"
+f1.teams.2.driver = "Rolf"
+f1.teams.2.number = 44
+f1.teams.2.color = [0, 210, 190]
+
+f1.teams.3.name = "McLaren"
+f1.teams.3.driver = "Richa"
+f1.teams.3.number = 4
+f1.teams.3.color = [255, 135, 0]
+
+f1.teams.4.name = "Aston Martin"
+f1.teams.4.driver = "Dennis"
+f1.teams.4.number = 14
+f1.teams.4.color = [0, 111, 98]
+
+f1.teams.5.name = "Alpine"
+f1.teams.5.driver = "Sujith"
+f1.teams.5.number = 10
+f1.teams.5.color = [255, 130, 180]

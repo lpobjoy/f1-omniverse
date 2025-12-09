@@ -1,0 +1,38 @@
+[package]
+# Extension metadata
+title = "F1 Telemetry Core"
+description = "Core simulation engine for F1 racing telemetry - handles physics, race logic, and car management"
+version = "1.0.0"
+category = "Simulation"
+keywords = ["f1", "telemetry", "racing", "simulation", "physics"]
+authors = ["Lewis Pobjoy"]
+repository = ""
+readme = "docs/README.md"
+changelog = "docs/CHANGELOG.md"
+
+# Extension dependencies
+[dependencies]
+"omni.kit.uiapp" = {}
+"omni.usd" = {}
+"omni.physx" = {}
+"omni.graph" = {}
+"omni.graph.action" = {}
+"omni.graph.nodes" = {}
+"omni.kit.commands" = {}
+
+# Python module configuration
+[[python.module]]
+name = "f1_telemetry.core"
+
+# Test configuration
+[[test]]
+args = [
+    "--no-window",
+    "--/app/asyncRendering=false",
+    "--/app/renderer/enabled=false"
+]
+dependencies = [
+    "omni.kit.test"
+]
+timeout = 180
+waiver = ""

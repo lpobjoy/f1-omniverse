@@ -1,0 +1,244 @@
+mdl 1.7;
+
+// F1 Car Paint Materials
+// Metallic automotive paint for each team livery
+
+import ::df::*;
+import ::base::*;
+import ::math::*;
+import ::state::*;
+import ::tex::*;
+import ::anno::*;
+
+// Base automotive paint material
+export material car_paint(
+    // Primary team color
+    uniform color primary_color = color(0.8, 0.0, 0.0)
+        [[
+            anno::display_name("Primary Color"),
+            anno::description("Main livery color")
+        ]],
+    
+    // Metallic flake intensity
+    uniform float metallic = 0.8
+        [[
+            anno::display_name("Metallic"),
+            anno::description("Metallic flake intensity"),
+            anno::hard_range(0.0, 1.0)
+        ]],
+    
+    // Clear coat intensity
+    uniform float clearcoat = 0.9
+        [[
+            anno::display_name("Clear Coat"),
+            anno::description("Clear coat glossiness"),
+            anno::hard_range(0.0, 1.0)
+        ]],
+    
+    // Base roughness
+    uniform float roughness = 0.15
+        [[
+            anno::display_name("Roughness"),
+            anno::hard_range(0.0, 1.0)
+        ]],
+    
+    // Flake size
+    uniform float flake_scale = 100.0
+        [[
+            anno::display_name("Flake Scale"),
+            anno::soft_range(10.0, 500.0)
+        ]]
+)
+= let {
+    float3 pos = state::position() * flake_scale;
+    
+    // Metallic flake noise
+    float flake_noise = base::perlin_noise(pos).mono;
+    float flake_mask = math::smoothstep(0.4, 0.6, flake_noise);
+    
+    // Vary color slightly with view angle (color shift)
+    float3 view_dir = state::direction();
+    float fresnel = math::pow(1.0 - math::abs(math::dot(state::normal(), view_dir)), 2.0);
+    
+    // Metallic color variation
+    color flake_color = primary_color * (1.0 + flake_mask * metallic * 0.3);
+    
+    // Final paint color
+    color final_color = math::lerp(primary_color, flake_color, metallic);
+    
+    // Roughness with flake variation
+    float final_roughness = roughness * (1.0 - flake_mask * 0.3 * metallic);
+    
+} in material(
+    surface: material_surface(
+        scattering: df::fresnel_layer(
+            ior: color(1.5),
+            weight: clearcoat,
+            layer: df::microfacet_ggx_smith_bsdf(
+                roughness_u: 0.02,
+                roughness_v: 0.02,
+                tint: color(1.0),
+                mode: df::scatter_reflect
+            ),
+            base: df::diffuse_reflection_bsdf(
+                tint: final_color * (1.0 - metallic * 0.5),
+                roughness: final_roughness
+            ) + df::microfacet_ggx_smith_bsdf(
+                roughness_u: final_roughness,
+                roughness_v: final_roughness,
+                tint: final_color * metallic,
+                mode: df::scatter_reflect
+            )
+        )
+    )
+);
+
+// Ferrari - Rosso Corsa
+export material ferrari_paint()
+= car_paint(
+    primary_color: color(0.863, 0.0, 0.0),
+    metallic: 0.7,
+    clearcoat: 0.95,
+    roughness: 0.12
+);
+
+// Red Bull - Dark Blue
+export material redbull_paint()
+= car_paint(
+    primary_color: color(0.118, 0.255, 1.0),
+    metallic: 0.85,
+    clearcoat: 0.9,
+    roughness: 0.15
+);
+
+// Mercedes - Teal/Silver
+export material mercedes_paint()
+= car_paint(
+    primary_color: color(0.0, 0.824, 0.745),
+    metallic: 0.9,
+    clearcoat: 0.95,
+    roughness: 0.1
+);
+
+// McLaren - Papaya Orange
+export material mclaren_paint()
+= car_paint(
+    primary_color: color(1.0, 0.529, 0.0),
+    metallic: 0.75,
+    clearcoat: 0.92,
+    roughness: 0.13
+);
+
+// Aston Martin - British Racing Green
+export material astonmartin_paint()
+= car_paint(
+    primary_color: color(0.0, 0.435, 0.384),
+    metallic: 0.8,
+    clearcoat: 0.93,
+    roughness: 0.14
+);
+
+// Alpine - Pink
+export material alpine_paint()
+= car_paint(
+    primary_color: color(1.0, 0.51, 0.706),
+    metallic: 0.7,
+    clearcoat: 0.9,
+    roughness: 0.15
+);
+
+// Carbon Fiber material (for body panels, wings)
+export material carbon_fiber(
+    uniform float weave_scale = 50.0
+        [[
+            anno::display_name("Weave Scale")
+        ]],
+    uniform float glossiness = 0.85
+        [[
+            anno::display_name("Glossiness"),
+            anno::hard_range(0.0, 1.0)
+        ]]
+)
+= let {
+    float3 pos = state::position() * weave_scale;
+    
+    // Create weave pattern
+    float u_wave = math::sin(pos.x * 3.14159 * 2.0) * 0.5 + 0.5;
+    float v_wave = math::sin(pos.z * 3.14159 * 2.0) * 0.5 + 0.5;
+    
+    // Checkerboard-like weave
+    float weave = math::abs(u_wave - v_wave);
+    
+    // Color variation (dark grey to near black)
+    color weave_color = color(0.05 + weave * 0.08);
+    
+    // Normal variation for depth
+    float3 normal_offset = float3(
+        (u_wave - 0.5) * 0.1,
+        0.0,
+        (v_wave - 0.5) * 0.1
+    );
+    
+} in material(
+    surface: material_surface(
+        scattering: df::fresnel_layer(
+            ior: color(1.5),
+            weight: glossiness,
+            layer: df::microfacet_ggx_smith_bsdf(
+                roughness_u: 1.0 - glossiness,
+                roughness_v: 1.0 - glossiness,
+                tint: color(1.0),
+                mode: df::scatter_reflect
+            ),
+            base: df::diffuse_reflection_bsdf(
+                tint: weave_color,
+                roughness: 0.3
+            )
+        )
+    ),
+    geometry: material_geometry(
+        normal: math::normalize(state::normal() + normal_offset)
+    )
+);
+
+// Tire rubber material
+export material tire_rubber(
+    uniform color rubber_color = color(0.08, 0.08, 0.08)
+        [[
+            anno::display_name("Rubber Color")
+        ]],
+    uniform float wear = 0.0
+        [[
+            anno::display_name("Wear"),
+            anno::description("Tire wear amount (0=new, 1=worn)"),
+            anno::hard_range(0.0, 1.0)
+        ]]
+)
+= let {
+    float3 pos = state::position() * 20.0;
+    
+    // Tread pattern (simplified)
+    float tread = math::fmod(math::abs(pos.z), 1.0);
+    float groove = math::smoothstep(0.1, 0.15, tread) * math::smoothstep(0.35, 0.3, tread);
+    
+    // Wear reduces grooves
+    groove = groove * (1.0 - wear * 0.8);
+    
+    // Surface noise
+    float noise = base::perlin_noise(pos * 5.0).mono;
+    
+    // Worn tires get lighter/grayer
+    color worn_color = color(0.15, 0.14, 0.13);
+    color final_color = math::lerp(rubber_color, worn_color, wear * 0.7);
+    
+    // Add groove darkness
+    final_color = final_color * (1.0 - groove * 0.3);
+    
+} in material(
+    surface: material_surface(
+        scattering: df::diffuse_reflection_bsdf(
+            tint: final_color,
+            roughness: 0.85 - wear * 0.15
+        )
+    )
+);

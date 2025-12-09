@@ -1,0 +1,162 @@
+{
+  "name": "Pobstone GP",
+  "location": "Silverstone, UK",
+  "latitude": 52.0786,
+  "longitude": -0.9489,
+  "total_length_km": 5.891,
+  "track_width": 12.0,
+  "scale": 2.0,
+  "elevation_offset": 15.0,
+  
+  "points": [
+    {"x": 0, "y": 0, "z": 0, "bank": 0},
+    {"x": 50, "y": 1, "z": 5, "bank": 0},
+    {"x": 100, "y": 2, "z": 3, "bank": 0},
+    {"x": 150, "y": 2, "z": 0, "bank": 0},
+    {"x": 200, "y": 3, "z": -5, "bank": 0},
+    {"x": 250, "y": 4, "z": -15, "bank": 5},
+    {"x": 280, "y": 5, "z": -40, "bank": 10},
+    {"x": 290, "y": 5, "z": -70, "bank": 8},
+    {"x": 280, "y": 4, "z": -100, "bank": -8},
+    {"x": 250, "y": 3, "z": -125, "bank": 10},
+    {"x": 220, "y": 3, "z": -145, "bank": -10},
+    {"x": 195, "y": 4, "z": -170, "bank": 8},
+    {"x": 180, "y": 5, "z": -195, "bank": -5},
+    {"x": 175, "y": 6, "z": -220, "bank": 3},
+    {"x": 180, "y": 6, "z": -250, "bank": 0},
+    {"x": 190, "y": 5, "z": -280, "bank": 0},
+    {"x": 200, "y": 4, "z": -320, "bank": 0},
+    {"x": 210, "y": 3, "z": -360, "bank": 0},
+    {"x": 215, "y": 2, "z": -400, "bank": 0},
+    {"x": 215, "y": 2, "z": -430, "bank": 6},
+    {"x": 200, "y": 2, "z": -455, "bank": 10},
+    {"x": 170, "y": 3, "z": -470, "bank": 8},
+    {"x": 140, "y": 4, "z": -475, "bank": 3},
+    {"x": 110, "y": 5, "z": -470, "bank": -5},
+    {"x": 85, "y": 5, "z": -455, "bank": 8},
+    {"x": 70, "y": 4, "z": -430, "bank": 10},
+    {"x": 65, "y": 3, "z": -400, "bank": 5},
+    {"x": 55, "y": 2, "z": -370, "bank": -3},
+    {"x": 40, "y": 2, "z": -340, "bank": 5},
+    {"x": 20, "y": 3, "z": -310, "bank": 3},
+    {"x": -10, "y": 4, "z": -285, "bank": 8},
+    {"x": -45, "y": 5, "z": -265, "bank": 10},
+    {"x": -75, "y": 5, "z": -250, "bank": 6},
+    {"x": -100, "y": 4, "z": -240, "bank": -5},
+    {"x": -120, "y": 3, "z": -225, "bank": 8},
+    {"x": -130, "y": 3, "z": -200, "bank": 5},
+    {"x": -135, "y": 4, "z": -170, "bank": 10},
+    {"x": -130, "y": 5, "z": -140, "bank": 8},
+    {"x": -115, "y": 5, "z": -115, "bank": 5},
+    {"x": -95, "y": 4, "z": -100, "bank": 12},
+    {"x": -70, "y": 3, "z": -95, "bank": 10},
+    {"x": -50, "y": 2, "z": -100, "bank": 8},
+    {"x": -35, "y": 2, "z": -110, "bank": 5},
+    {"x": -25, "y": 2, "z": -120, "bank": -3},
+    {"x": -20, "y": 2, "z": -135, "bank": 0},
+    {"x": -25, "y": 2, "z": -155, "bank": 0},
+    {"x": -35, "y": 2, "z": -175, "bank": 0},
+    {"x": -50, "y": 3, "z": -190, "bank": 8},
+    {"x": -75, "y": 4, "z": -195, "bank": 10},
+    {"x": -100, "y": 4, "z": -185, "bank": 8},
+    {"x": -115, "y": 3, "z": -165, "bank": 10},
+    {"x": -120, "y": 2, "z": -140, "bank": 12},
+    {"x": -115, "y": 2, "z": -110, "bank": 10},
+    {"x": -100, "y": 1, "z": -80, "bank": 5},
+    {"x": -75, "y": 1, "z": -50, "bank": 3},
+    {"x": -50, "y": 0, "z": -25, "bank": 0},
+    {"x": -25, "y": 0, "z": -10, "bank": 0}
+  ],
+  
+  "drs_zones": [
+    {
+      "name": "Hangar Straight",
+      "start": 0.40,
+      "end": 0.48,
+      "detection_point": 0.38
+    },
+    {
+      "name": "Wellington Straight",
+      "start": 0.62,
+      "end": 0.72,
+      "detection_point": 0.60
+    }
+  ],
+  
+  "pit_lane": {
+    "entry_t": 0.92,
+    "exit_t": 0.06,
+    "pit_stop_duration": 3.5,
+    "speed_limit_kph": 80,
+    "pit_boxes": 6
+  },
+  
+  "sectors": [
+    {"name": "Sector 1", "start": 0.0, "end": 0.333},
+    {"name": "Sector 2", "start": 0.333, "end": 0.666},
+    {"name": "Sector 3", "start": 0.666, "end": 1.0}
+  ],
+  
+  "corners": [
+    {"name": "Copse", "t": 0.09, "type": "fast"},
+    {"name": "Maggots", "t": 0.15, "type": "esses"},
+    {"name": "Becketts", "t": 0.18, "type": "esses"},
+    {"name": "Chapel", "t": 0.22, "type": "fast"},
+    {"name": "Stowe", "t": 0.38, "type": "medium"},
+    {"name": "Vale", "t": 0.42, "type": "medium"},
+    {"name": "Club", "t": 0.46, "type": "slow"},
+    {"name": "Abbey", "t": 0.55, "type": "fast"},
+    {"name": "Farm", "t": 0.60, "type": "medium"},
+    {"name": "Village", "t": 0.65, "type": "slow"},
+    {"name": "The Loop", "t": 0.70, "type": "slow"},
+    {"name": "Aintree", "t": 0.75, "type": "medium"},
+    {"name": "Brooklands", "t": 0.85, "type": "slow"},
+    {"name": "Luffield", "t": 0.90, "type": "slow"},
+    {"name": "Woodcote", "t": 0.95, "type": "fast"}
+  ],
+  
+  "teams": [
+    {
+      "name": "Ferrari",
+      "driver": "Karina",
+      "number": 16,
+      "color": [220, 0, 0]
+    },
+    {
+      "name": "Red Bull",
+      "driver": "Lewis",
+      "number": 1,
+      "color": [30, 65, 255]
+    },
+    {
+      "name": "Mercedes",
+      "driver": "Rolf",
+      "number": 44,
+      "color": [0, 210, 190]
+    },
+    {
+      "name": "McLaren",
+      "driver": "Richa",
+      "number": 4,
+      "color": [255, 135, 0]
+    },
+    {
+      "name": "Aston Martin",
+      "driver": "Dennis",
+      "number": 14,
+      "color": [0, 111, 98]
+    },
+    {
+      "name": "Alpine",
+      "driver": "Sujith",
+      "number": 10,
+      "color": [255, 130, 180]
+    }
+  ],
+  
+  "race_settings": {
+    "total_laps": 50,
+    "formation_lap": true,
+    "default_speed_multiplier": 0.25
+  }
+}

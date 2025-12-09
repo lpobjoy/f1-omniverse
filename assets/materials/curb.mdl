@@ -1,0 +1,118 @@
+mdl 1.7;
+
+// Track Curb (Kerb) Material
+// Red and white striped curbs for F1 track
+
+import ::df::*;
+import ::base::*;
+import ::math::*;
+import ::state::*;
+import ::tex::*;
+import ::anno::*;
+
+export material curb_red_white(
+    // Red color
+    uniform color red_color = color(0.85, 0.1, 0.1)
+        [[
+            anno::display_name("Red Color"),
+            anno::description("Curb red stripe color")
+        ]],
+    
+    // White color
+    uniform color white_color = color(0.95, 0.95, 0.95)
+        [[
+            anno::display_name("White Color"),
+            anno::description("Curb white stripe color")
+        ]],
+    
+    // Stripe width in meters
+    uniform float stripe_width = 0.5
+        [[
+            anno::display_name("Stripe Width"),
+            anno::description("Width of each stripe in meters"),
+            anno::soft_range(0.1, 2.0)
+        ]],
+    
+    // Roughness
+    uniform float roughness = 0.4
+        [[
+            anno::display_name("Roughness"),
+            anno::hard_range(0.0, 1.0)
+        ]],
+    
+    // Wear amount
+    uniform float wear = 0.2
+        [[
+            anno::display_name("Wear"),
+            anno::description("Amount of tire rubber and wear"),
+            anno::hard_range(0.0, 1.0)
+        ]]
+)
+= let {
+    // Use world Z position for stripe pattern (along track)
+    float pos_along = state::position().z;
+    
+    // Calculate stripe pattern
+    float stripe_phase = math::fmod(math::abs(pos_along), stripe_width * 2.0);
+    float stripe_mask = math::step(stripe_width, stripe_phase);
+    
+    // Select color based on stripe
+    color stripe_color = stripe_mask > 0.5 ? white_color : red_color;
+    
+    // Add wear (tire rubber marks)
+    float noise = base::perlin_noise(state::position() * 10.0).mono;
+    color rubber_color = color(0.1, 0.1, 0.1);
+    float wear_mask = noise * wear;
+    
+    color final_color = math::lerp(stripe_color, rubber_color, wear_mask);
+    
+    // Slight roughness variation
+    float final_roughness = roughness + noise * 0.1;
+    
+} in material(
+    surface: material_surface(
+        scattering: df::diffuse_reflection_bsdf(
+            tint: final_color,
+            roughness: final_roughness
+        )
+    )
+);
+
+export material curb_yellow_blue(
+    // Yellow color (for some circuits)
+    uniform color yellow_color = color(0.95, 0.85, 0.1)
+        [[
+            anno::display_name("Yellow Color")
+        ]],
+    
+    // Blue color
+    uniform color blue_color = color(0.1, 0.2, 0.8)
+        [[
+            anno::display_name("Blue Color")
+        ]],
+    
+    uniform float stripe_width = 0.5,
+    uniform float roughness = 0.4,
+    uniform float wear = 0.2
+)
+= let {
+    float pos_along = state::position().z;
+    float stripe_phase = math::fmod(math::abs(pos_along), stripe_width * 2.0);
+    float stripe_mask = math::step(stripe_width, stripe_phase);
+    
+    color stripe_color = stripe_mask > 0.5 ? blue_color : yellow_color;
+    
+    float noise = base::perlin_noise(state::position() * 10.0).mono;
+    color rubber_color = color(0.1, 0.1, 0.1);
+    float wear_mask = noise * wear;
+    
+    color final_color = math::lerp(stripe_color, rubber_color, wear_mask);
+    
+} in material(
+    surface: material_surface(
+        scattering: df::diffuse_reflection_bsdf(
+            tint: final_color,
+            roughness: roughness + noise * 0.1
+        )
+    )
+);

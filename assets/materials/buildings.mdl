@@ -1,0 +1,212 @@
+mdl 1.7;
+
+// Building and Structure Materials
+// Pit buildings, grandstands, signage
+
+import ::df::*;
+import ::base::*;
+import ::math::*;
+import ::state::*;
+import ::tex::*;
+import ::anno::*;
+
+// Pit building metal cladding
+export material pit_building_cladding(
+    uniform color panel_color = color(0.3, 0.3, 0.35)
+        [[
+            anno::display_name("Panel Color")
+        ]],
+    uniform float metallic = 0.8
+        [[
+            anno::display_name("Metallic"),
+            anno::hard_range(0.0, 1.0)
+        ]],
+    uniform float panel_width = 2.0
+        [[
+            anno::display_name("Panel Width (meters)")
+        ]]
+)
+= let {
+    float3 pos = state::position();
+    
+    // Panel seams
+    float seam_x = math::fmod(math::abs(pos.x), panel_width);
+    float seam_z = math::fmod(math::abs(pos.z), panel_width);
+    
+    float seam_mask = math::smoothstep(0.0, 0.02, seam_x) * 
+                      math::smoothstep(0.0, 0.02, seam_z);
+    
+    // Slight panel variation
+    float panel_id = math::floor(pos.x / panel_width) + math::floor(pos.z / panel_width) * 100.0;
+    float panel_var = math::frac(math::sin(panel_id) * 43758.5453);
+    
+    color varied_color = panel_color * (0.95 + panel_var * 0.1);
+    
+    // Darker at seams
+    color final_color = math::lerp(varied_color * 0.3, varied_color, seam_mask);
+    
+} in material(
+    surface: material_surface(
+        scattering: df::microfacet_ggx_smith_bsdf(
+            roughness_u: 0.2,
+            roughness_v: 0.2,
+            tint: final_color * metallic + color(0.1) * (1.0 - metallic),
+            mode: df::scatter_reflect
+        )
+    )
+);
+
+// Glass material (for pit buildings, media center)
+export material building_glass(
+    uniform color tint = color(0.4, 0.6, 0.7)
+        [[
+            anno::display_name("Glass Tint")
+        ]],
+    uniform float opacity = 0.3
+        [[
+            anno::display_name("Opacity"),
+            anno::hard_range(0.0, 1.0)
+        ]]
+)
+= material(
+    surface: material_surface(
+        scattering: df::fresnel_layer(
+            ior: color(1.52),
+            weight: 1.0,
+            layer: df::microfacet_ggx_smith_bsdf(
+                roughness_u: 0.01,
+                roughness_v: 0.01,
+                tint: color(1.0),
+                mode: df::scatter_reflect_transmit
+            ),
+            base: df::diffuse_transmission_bsdf(
+                tint: tint
+            )
+        )
+    ),
+    thin_walled: true
+);
+
+// Grandstand concrete
+export material grandstand_concrete(
+    uniform color concrete_color = color(0.7, 0.68, 0.65)
+        [[
+            anno::display_name("Concrete Color")
+        ]]
+)
+= let {
+    float3 pos = state::position() * 2.0;
+    
+    // Concrete texture
+    float noise = base::perlin_noise(pos).mono;
+    float fine_noise = base::perlin_noise(pos * 10.0).mono;
+    
+    color varied = concrete_color * (0.9 + noise * 0.2);
+    
+} in material(
+    surface: material_surface(
+        scattering: df::diffuse_reflection_bsdf(
+            tint: varied,
+            roughness: 0.9
+        )
+    )
+);
+
+// Grandstand seating (plastic)
+export material grandstand_seat(
+    uniform color seat_color = color(0.9, 0.1, 0.1)
+        [[
+            anno::display_name("Seat Color")
+        ]]
+)
+= let {
+    float3 pos = state::position() * 20.0;
+    float noise = base::perlin_noise(pos).mono;
+    
+    // Slight variation per seat
+    color varied = seat_color * (0.9 + noise * 0.2);
+    
+} in material(
+    surface: material_surface(
+        scattering: df::diffuse_reflection_bsdf(
+            tint: varied,
+            roughness: 0.6
+        )
+    )
+);
+
+// Track signage / advertising boards
+export material signage_board(
+    uniform color background_color = color(1.0, 1.0, 1.0)
+        [[
+            anno::display_name("Background Color")
+        ]],
+    uniform float emissive_intensity = 0.2
+        [[
+            anno::display_name("Emissive Intensity"),
+            anno::description("Light emission for illuminated signs"),
+            anno::hard_range(0.0, 1.0)
+        ]]
+)
+= material(
+    surface: material_surface(
+        scattering: df::diffuse_reflection_bsdf(
+            tint: background_color,
+            roughness: 0.4
+        ),
+        emission: material_emission(
+            emission: df::diffuse_edf(),
+            intensity: background_color * emissive_intensity * 1000.0
+        )
+    )
+);
+
+// Start/Finish gantry metal
+export material gantry_metal(
+    uniform color metal_color = color(0.15, 0.15, 0.15)
+        [[
+            anno::display_name("Metal Color")
+        ]]
+)
+= material(
+    surface: material_surface(
+        scattering: df::microfacet_ggx_smith_bsdf(
+            roughness_u: 0.25,
+            roughness_v: 0.25,
+            tint: metal_color,
+            mode: df::scatter_reflect
+        )
+    )
+);
+
+// Pit lane marking paint (white lines)
+export material pit_lane_marking(
+    uniform color line_color = color(0.95, 0.95, 0.95)
+        [[
+            anno::display_name("Line Color")
+        ]],
+    uniform float wear = 0.2
+        [[
+            anno::display_name("Wear"),
+            anno::hard_range(0.0, 1.0)
+        ]]
+)
+= let {
+    float3 pos = state::position() * 10.0;
+    
+    // Wear pattern
+    float noise = base::perlin_noise(pos).mono;
+    float wear_mask = noise * wear;
+    
+    // Worn areas show asphalt through
+    color asphalt = color(0.12, 0.12, 0.12);
+    color final_color = math::lerp(line_color, asphalt, wear_mask);
+    
+} in material(
+    surface: material_surface(
+        scattering: df::diffuse_reflection_bsdf(
+            tint: final_color,
+            roughness: 0.7
+        )
+    )
+);
